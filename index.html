@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>めぐみ ｢M36_M1｣</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --off-white: #e8e8e8;
+      --dim:     #888888;
+      --red:     #c0392b;
+      --mid:     #1e1e1e;
+      --border:  #2a2a2a;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--off-white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(10,10,10,0.95);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.02em;
+      color: var(--off-white);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--red); }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--dim);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--off-white); }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 3rem 5rem;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 1.5rem;
+    }
+    .hero-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3.5rem, 10vw, 9rem);
+      font-weight: 700;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--off-white);
+      margin-bottom: 0.4rem;
+    }
+    .hero-name .jp { display: block; }
+    .hero-name .code {
+      display: block;
+      color: var(--dim);
+      font-size: clamp(2rem, 5vw, 4.5rem);
+    }
+    .hero-sub {
+      margin-top: 2rem;
+      font-size: 0.75rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+      max-width: 400px;
+    }
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem;
+      right: 3rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--border);
+      writing-mode: vertical-rl;
+    }
+
+    /* glitch */
+    @keyframes glitch-1 {
+      0%,100% { clip-path: inset(0 0 98% 0); transform: translate(-4px,0); }
+      50%      { clip-path: inset(0 0 98% 0); transform: translate(4px,0); }
+    }
+    @keyframes glitch-2 {
+      0%,100% { clip-path: inset(90% 0 0 0); transform: translate(4px,0); }
+      50%      { clip-path: inset(90% 0 0 0); transform: translate(-4px,0); }
+    }
+    .glitch { position: relative; display: inline-block; }
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      color: var(--off-white);
+      font-family: inherit;
+      font-weight: inherit;
+      font-size: inherit;
+      line-height: inherit;
+      opacity: 0;
+    }
+    .glitch::before { color: #ff2a2a; animation: glitch-1 3.5s infinite steps(1); }
+    .glitch::after  { color: #2affee; animation: glitch-2 3.5s infinite steps(1) 0.1s; }
+    .glitch.active::before,
+    .glitch.active::after { opacity: 1; }
+
+    /* ── SECTIONS SHARED ── */
+    section {
+      padding: 7rem 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: 3rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .section-label::after {
+      content: '';
+      display: block;
+      height: 1px;
+      width: 60px;
+      background: var(--border);
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+    .about-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+    }
+    .about-headline em {
+      font-style: normal;
+      color: var(--dim);
+    }
+    .about-body {
+      color: var(--dim);
+      font-size: 0.85rem;
+      line-height: 1.9;
+    }
+    .about-body p + p { margin-top: 1.2rem; }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 2rem;
+    }
+    .tag {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.8rem;
+      color: var(--dim);
+    }
+
+    /* ── GALLERY ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto;
+      gap: 2px;
+    }
+    .gallery-item {
+      background: var(--mid);
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .gallery-item:nth-child(1) { grid-column: span 7; aspect-ratio: 16/9; }
+    .gallery-item:nth-child(2) { grid-column: span 5; aspect-ratio: 4/3; }
+    .gallery-item:nth-child(3) { grid-column: span 4; aspect-ratio: 1/1; }
+    .gallery-item:nth-child(4) { grid-column: span 4; aspect-ratio: 1/1; }
+    .gallery-item:nth-child(5) { grid-column: span 4; aspect-ratio: 1/1; }
+    .gallery-item:nth-child(6) { grid-column: span 5; aspect-ratio: 3/2; }
+    .gallery-item:nth-child(7) { grid-column: span 7; aspect-ratio: 3/2; }
+
+    .gallery-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      inset: 0;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--border);
+      transition: color 0.3s;
+    }
+    .gallery-item:hover .gallery-placeholder { color: var(--dim); }
+    .gallery-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--red);
+      opacity: 0;
+      transition: opacity 0.3s;
+      mix-blend-mode: multiply;
+    }
+    .gallery-item:hover::after { opacity: 0.08; }
+
+    /* noise texture on gallery items */
+    .gallery-item::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      z-index: 1;
+      pointer-events: none;
+    }
+    .gallery-cta {
+      margin-top: 2rem;
+      font-size: 0.7rem;
+      color: var(--dim);
+      letter-spacing: 0.1em;
+    }
+    .gallery-cta a {
+      color: var(--off-white);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+    .gallery-cta a:hover { border-color: var(--off-white); }
+
+    /* ── MUSIC / EVENTS ── */
+    .events-list { display: flex; flex-direction: column; gap: 0; }
+    .event-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      padding: 1.8rem 0;
+      border-top: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+    .event-row:last-child { border-bottom: 1px solid var(--border); }
+    .event-date {
+      font-size: 0.7rem;
+      color: var(--red);
+      letter-spacing: 0.1em;
+    }
+    .event-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+    .event-location {
+      font-size: 0.75rem;
+      color: var(--dim);
+    }
+    .event-type {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.6rem;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+    .event-type.live { border-color: var(--red); color: var(--red); }
+
+    .music-players {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 4rem;
+    }
+    .music-card {
+      background: var(--mid);
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .music-card-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 1rem;
+    }
+    .music-card-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+    .music-card-sub {
+      font-size: 0.7rem;
+      color: var(--dim);
+    }
+    .play-btn {
+      margin-top: 1.5rem;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: none;
+      color: var(--off-white);
+    }
+    .play-btn:hover { border-color: var(--red); background: rgba(192,57,43,0.1); }
+    .play-btn svg { width: 12px; height: 12px; fill: currentColor; }
+
+    /* ── CONTACT ── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: start;
+    }
+    .contact-headline {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .contact-headline .red { color: var(--red); }
+    .contact-info { display: flex; flex-direction: column; gap: 2.5rem; }
+    .contact-item-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 0.4rem;
+    }
+    .contact-item-value {
+      font-size: 0.9rem;
+      color: var(--off-white);
+    }
+    .contact-item-value a {
+      color: inherit;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1px;
+      transition: border-color 0.2s;
+    }
+    .contact-item-value a:hover { border-color: var(--off-white); }
+    .social-links {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .social-link {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .social-link:hover { color: var(--off-white); }
+
+    /* ── FOOTER ── */
+    footer {
+      padding: 2rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-copy {
+      font-size: 0.65rem;
+      color: var(--border);
+      letter-spacing: 0.1em;
+    }
+    .footer-mark {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      color: var(--border);
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      #hero { padding: 0 1.5rem 4rem; }
+      section { padding: 5rem 1.5rem; }
+      .about-grid,
+      .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .gallery-item:nth-child(n) { grid-column: span 12; }
+      .music-players { grid-template-columns: 1fr; }
+      .event-row { grid-template-columns: 80px 1fr; }
+      .event-location, .event-type { display: none; }
+      footer { padding: 1.5rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .glitch::before, .glitch::after { animation: none; opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#hero" class="nav-logo">め<span>.</span>M36</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#gallery">Work</a></li>
+    <li><a href="#music">Music</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <p class="hero-tag">Designer · Artist · Sound</p>
+  <h1 class="hero-name">
+    <span class="jp glitch" data-text="めぐみ">めぐみ</span>
+    <span class="code">｢M36_M1｣</span>
+  </h1>
+  <p class="hero-sub">Visual identity, moving image &amp; underground sounds — built from the margins.</p>
+  <span class="hero-scroll">Scroll ↓</span>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-label">About</p>
+  <div class="about-grid">
+    <div class="about-headline">
+      Making things that feel <em>real</em> in spaces that don't.
+    </div>
+    <div>
+      <div class="about-body">
+        <p>I work at the edge of visual art and sound — design that bleeds, music that cuts, events built for people who know the difference.</p>
+        <p>Based somewhere between the studio and the basement. Available for creative direction, graphic work, live visuals, and anything that doesn't fit a brief.</p>
+      </div>
+      <div class="tags">
+        <span class="tag">Graphic Design</span>
+        <span class="tag">Art Direction</span>
+        <span class="tag">Live Visuals</span>
+        <span class="tag">Music Production</span>
+        <span class="tag">Event Curation</span>
+        <span class="tag">Photography</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <p class="section-label">Selected Work</p>
+  <div class="gallery-grid">
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+    <div class="gallery-item"><span class="gallery-placeholder">Add your image</span></div>
+  </div>
+  <p class="gallery-cta">Replace placeholders with your work. <a href="#">Full archive →</a></p>
+</section>
+
+<!-- MUSIC / EVENTS -->
+<section id="music">
+  <p class="section-label">Music &amp; Events</p>
+
+  <div class="events-list">
+    <div class="event-row">
+      <span class="event-date">2025.11.08</span>
+      <span class="event-title">Void Series #12</span>
+      <span class="event-location">Warehouse 9 — Tokyo</span>
+      <span class="event-type live">Live</span>
+    </div>
+    <div class="event-row">
+      <span class="event-date">2025.10.21</span>
+      <span class="event-title">Fracture Night Vol. 4</span>
+      <span class="event-location">Club Shelter — Osaka</span>
+      <span class="event-type">DJ Set</span>
+    </div>
+    <div class="event-row">
+      <span class="event-date">2025.09.14</span>
+      <span class="event-title">M36_M1 — Residency Opening</span>
+      <span class="event-location">Gallery X — Berlin</span>
+      <span class="event-type">Exhibition</span>
+    </div>
+    <div class="event-row">
+      <span class="event-date">2025.07.30</span>
+      <span class="event-title">Underneath — EP Release</span>
+      <span class="event-location">Online / Bandcamp</span>
+      <span class="event-type">Release</span>
+    </div>
+  </div>
+
+  <div class="music-players">
+    <div class="music-card">
+      <p class="music-card-label">Latest Release</p>
+      <p class="music-card-title">Underneath EP</p>
+      <p class="music-card-sub">4 tracks · 2025</p>
+      <button class="play-btn" aria-label="Play">
+        <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+      </button>
+    </div>
+    <div class="music-card">
+      <p class="music-card-label">Mix Series</p>
+      <p class="music-card-title">Deep Signal 003</p>
+      <p class="music-card-sub">60 min · live set</p>
+      <button class="play-btn" aria-label="Play">
+        <svg viewBox="0 0 10 12"><polygon points="0,0 10,6 0,12"/></svg>
+      </button>
+    </div>
+    <div class="music-card">
+      <p class="music-card-label">Archive</p>
+      <p class="music-card-title">All Releases</p>
+      <p class="music-card-sub">Bandcamp / SoundCloud</p>
+      <button class="play-btn" aria-label="Browse">
+        <svg viewBox="0 0 12 12"><path d="M2 6h8M7 2l4 4-4 4" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <p class="section-label">Contact</p>
+  <div class="contact-grid">
+    <div class="contact-headline">
+      Let's make<br>something <span class="red">real.</span>
+    </div>
+    <div class="contact-info">
+      <div>
+        <p class="contact-item-label">Email</p>
+        <p class="contact-item-value"><a href="mailto:hello@m36m1.com">hello@m36m1.com</a></p>
+      </div>
+      <div>
+        <p class="contact-item-label">For bookings &amp; collabs</p>
+        <p class="contact-item-value"><a href="mailto:book@m36m1.com">book@m36m1.com</a></p>
+      </div>
+      <div class="social-links">
+        <a href="#" class="social-link">Instagram</a>
+        <a href="#" class="social-link">Bandcamp</a>
+        <a href="#" class="social-link">SoundCloud</a>
+        <a href="#" class="social-link">Behance</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-copy">© 2025 めぐみ ｢M36_M1｣ — All rights reserved</span>
+  <span class="footer-mark">M36_M1</span>
+</footer>
+
+<script>
+  // Nav scroll state
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // Glitch on load
+  const glitch = document.querySelector('.glitch');
+  setTimeout(() => glitch.classList.add('active'), 400);
+
+  // Play button feedback
+  document.querySelectorAll('.play-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.style.borderColor = 'var(--red)';
+      setTimeout(() => btn.style.borderColor = '', 600);
+    });
+  });
+</script>
+</body>
+</html>
