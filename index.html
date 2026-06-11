@@ -197,7 +197,8 @@
     .dj-card::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: var(--purple); }
     .dj-date { font-size: 0.62rem; color: var(--purple); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
     .dj-title { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 700; color: var(--white); margin-bottom: 0.5rem; }
-    .dj-venue { color: var(--dim); font-size: 0.8rem; margin-bottom: 2rem; }
+    .dj-venue { color: var(--dim); font-size: 0.8rem; margin-bottom: 0.6rem; }
+    .dj-localtime { font-size: 0.72rem; color: var(--purple); margin-bottom: 2rem; letter-spacing: 0.03em; }
     .dj-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .dj-tag { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; border: 1px solid var(--border); padding: 0.25rem 0.7rem; color: var(--dim); }
     .dj-tag.live { border-color: var(--purple); color: var(--purple); }
@@ -329,6 +330,7 @@
     <p class="dj-date">Replace with your next date</p>
     <p class="dj-title">Event Name Here</p>
     <p class="dj-venue">Venue — City</p>
+    <p class="dj-localtime">🕐 <span id="event-localtime">loading...</span></p>
     <div class="dj-tags">
       <span class="dj-tag live">Live</span>
       <span class="dj-tag">Techno</span>
@@ -347,10 +349,10 @@
   <p class="section-label">Events</p>
   <h2 class="section-title">Agenda.</h2>
   <div class="events-list">
-    <div class="event-row"><span class="event-date">2025.11.08</span><div><div class="event-title">Void Series #12</div><div class="event-location">Warehouse 9 — Tokyo</div></div><span class="event-badge dj">DJ Set</span></div>
-    <div class="event-row"><span class="event-date">2025.10.21</span><div><div class="event-title">Fracture Night Vol. 4</div><div class="event-location">Club Shelter — Osaka</div></div><span class="event-badge dj">DJ Set</span></div>
-    <div class="event-row"><span class="event-date">2025.09.14</span><div><div class="event-title">M36_M1 — Residency Opening</div><div class="event-location">Gallery X — Berlin</div></div><span class="event-badge art">Exhibition</span></div>
-    <div class="event-row"><span class="event-date">2025.07.30</span><div><div class="event-title">Underneath — EP Release</div><div class="event-location">Online / Bandcamp</div></div><span class="event-badge">Release</span></div>
+    <div class="event-row" data-utc="2025-11-08T21:00:00Z"><span class="event-date">2025.11.08</span><div><div class="event-title">Void Series #12</div><div class="event-location">Warehouse 9 — Tokyo</div></div><span class="event-badge dj">DJ Set</span></div>
+    <div class="event-row" data-utc="2025-10-21T21:00:00Z"><span class="event-date">2025.10.21</span><div><div class="event-title">Fracture Night Vol. 4</div><div class="event-location">Club Shelter — Osaka</div></div><span class="event-badge dj">DJ Set</span></div>
+    <div class="event-row" data-utc="2025-09-14T18:00:00Z"><span class="event-date">2025.09.14</span><div><div class="event-title">M36_M1 — Residency Opening</div><div class="event-location">Gallery X — Berlin</div></div><span class="event-badge art">Exhibition</span></div>
+    <div class="event-row" data-utc="2025-07-30T00:00:00Z"><span class="event-date">2025.07.30</span><div><div class="event-title">Underneath — EP Release</div><div class="event-location">Online / Bandcamp</div></div><span class="event-badge">Release</span></div>
   </div>
 </section>
 
@@ -572,17 +574,45 @@ window.addEventListener('resize', () => { positionDots(); onScroll(); });
 // GO TO TOP
 document.getElementById('go-top').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-// COUNTDOWN
-const EVENT_DATE = new Date('2025-11-08T22:00:00');
+// COUNTDOWN — stored as UTC, displayed in viewer's local time
+// Change this to your event's exact UTC time
+// e.g. if your event is 22:00 Paris time (CET = UTC+1), set 21:00 UTC
+const EVENT_DATE_UTC = new Date('2025-11-08T21:00:00Z'); // ← change this
+
+// Show the event time in viewer's local timezone under the card
+(function() {
+  const el = document.getElementById('event-localtime');
+  if (!el) return;
+  const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit', timeZoneName:'short' };
+  el.textContent = EVENT_DATE_UTC.toLocaleString(undefined, opts);
+})();
+
 function tick() {
-  const diff = EVENT_DATE - new Date();
-  if (diff <= 0) { ['cd-d','cd-h','cd-m','cd-s'].forEach(id => document.getElementById(id).textContent = '00'); return; }
+  const diff = EVENT_DATE_UTC - new Date();
+  if (diff <= 0) {
+    ['cd-d','cd-h','cd-m','cd-s'].forEach(id => document.getElementById(id).textContent = '00');
+    return;
+  }
   document.getElementById('cd-d').textContent = String(Math.floor(diff/86400000)).padStart(2,'0');
   document.getElementById('cd-h').textContent = String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
   document.getElementById('cd-m').textContent = String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
   document.getElementById('cd-s').textContent = String(Math.floor((diff%60000)/1000)).padStart(2,'0');
 }
 tick(); setInterval(tick, 1000);
+
+// Convert all event dates to viewer's local time
+document.querySelectorAll('.event-row[data-utc]').forEach(row => {
+  const utc  = new Date(row.dataset.utc);
+  const span = row.querySelector('.event-date');
+  if (!span) return;
+  // Short format: "Nov 8, 22:00" in local time
+  const date = utc.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+  const time = utc.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+  const tz   = utc.toLocaleTimeString(undefined, { timeZoneName:'short' }).split(' ').pop();
+  span.textContent = date + ' · ' + time;
+  span.title = tz; // full timezone on hover
+});
+
 </script>
 </body>
 </html>
